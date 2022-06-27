@@ -7,8 +7,9 @@ export const sourceRouter = Router();
 
 sourceRouter.get('/', async (req: Request, res: Response) => {
     const sources = await getSources();
-    res.send(sources);
+    res.json(sources);
 })
+
 sourceRouter.get('/subscribe/:sourceId', async (req: Request, res: Response) => {
-    
+
 });
