@@ -58,3 +58,4 @@ userRouter.get('', auth, async (req: Request, res: Response) => {
     const user = await UserModel.findById(req.user._id).select('-password');
     res.send(user);
 });
+
