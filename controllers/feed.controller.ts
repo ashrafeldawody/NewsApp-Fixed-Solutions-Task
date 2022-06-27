@@ -9,6 +9,9 @@ feedRouter.get('/',auth, async (req: Request, res: Response) => {
     // @ts-ignore
     const user = await UserModel.findById(req.user._id);
 
+    if(user.subscriptions.length === 0)
+        return res.status(400).json({message: 'You have no subscriptions'});
+
     const news = await getNewsAndArticles(user.subscriptions);
     res.json(news);
 });
