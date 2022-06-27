@@ -2,7 +2,7 @@ import { Request, Response, Router } from 'express';
 import UserModel from '../models/user.model';
 import { compare,hash } from 'bcrypt';
 import { userValidator } from '../validators/user.validator';
-
+import {auth} from '../middleware/auth.middleware';
 
 export const userRouter = Router();
 
@@ -51,4 +51,10 @@ userRouter.post('/register', async (req: Request, res: Response) => {
             console.error(error);
             return res.status(500).send({error: 'Error creating user'});
         })
+});
+
+userRouter.get('', auth, async (req: Request, res: Response) => {
+    // @ts-ignore
+    const user = await UserModel.findById(req.user._id).select('-password');
+    res.send(user);
 });
