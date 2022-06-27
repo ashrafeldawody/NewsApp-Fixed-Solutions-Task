@@ -29,22 +29,17 @@ userRouter.post('/login', async (req: Request, res: Response) => {
 });
 
 userRouter.post('/register', async (req: Request, res: Response) => {
+    const { fullName,email,password } = req.body;
     const {error} = userValidator(req.body,true);
-
     if (error)
         return res.status(400).send({error: error});
 
-    const user: any = await UserModel.findOne({email: req.body.email});
-
+    const user: any = await UserModel.findOne({email});
     if (user)
         return res.status(400).send({error: 'Email already exists'});
 
-    const hashedPassword = await hash(req.body.password, 10);
-    await UserModel.create({
-            fullName: req.body.fullName,
-            email: req.body.email,
-            password: hashedPassword,
-        })
+    const hashedPassword = await hash(password, 10);
+    await UserModel.create({fullName, email, password: hashedPassword})
         .then(() => {
             res.send({'message': 'User created successfully'});
         })
