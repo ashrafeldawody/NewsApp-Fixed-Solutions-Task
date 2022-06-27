@@ -3,6 +3,7 @@ import UserModel from '../models/user.model';
 import { compare,hash } from 'bcrypt';
 import { userValidator } from '../validators/user.validator';
 import {auth} from '../middleware/auth.middleware';
+import {addToBlacklist} from "../services/auth-blacklist";
 
 export const userRouter = Router();
 
@@ -37,8 +38,8 @@ userRouter.post('/register', async (req: Request, res: Response) => {
 
     if (user)
         return res.status(400).send({error: 'Email already exists'});
-    const hashedPassword = await hash(req.body.password, 10);
 
+    const hashedPassword = await hash(req.body.password, 10);
     await UserModel.create({
             fullName: req.body.fullName,
             email: req.body.email,
@@ -59,3 +60,8 @@ userRouter.get('', auth, async (req: Request, res: Response) => {
     res.send(user);
 });
 
+userRouter.post('/logout', auth, async (req: Request, res: Response) => {
+    const token = req.header('x-auth-token') || req.header('authorization');
+    await addToBlacklist(token as string);
+    res.send({message: 'Logout successful'});
+});

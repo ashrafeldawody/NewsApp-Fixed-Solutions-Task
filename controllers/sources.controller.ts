@@ -1,6 +1,4 @@
 import { Request, Response, Router } from 'express';
-import { compare,hash } from 'bcrypt';
-import { userValidator } from '../validators/user.validator';
 import {auth} from '../middleware/auth.middleware';
 import {getSource, getSources} from '../services/newsapi';
 import UserModel from "../models/user.model";
@@ -32,16 +30,14 @@ sourceRouter.post('/subscribe/:sourceId',auth ,async (req: Request, res: Respons
     return res.json({message: 'You subscribed to this source'});
 
 });
-sourceRouter.post('/unsubscribe/:sourceIds',auth ,async (req: Request, res: Response) => {
+sourceRouter.post('/unsubscribe/:sourceId',auth ,async (req: Request, res: Response) => {
     // @ts-ignore
     const user = await UserModel.findById(req.user._id);
-    if (!user)
-        return res.status(404).json({message: 'User not found'});
 
-    if (!user.subscriptions.includes(req.params.sourceIds))
+    if (!user.subscriptions.includes(req.params.sourceId))
         return res.status(400).json({message: 'You are not subscribed to this source'});
 
-    user.subscriptions = user.subscriptions.filter((sourceId:string) => sourceId !== req.params.sourceIds);
+    user.subscriptions = user.subscriptions.filter((sourceId:string) => sourceId !== req.params.sourceId);
     await user.save();
 
     return res.json({message: 'You unsubscribed from this source'});

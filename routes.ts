@@ -4,9 +4,6 @@ import { sourceRouter } from './controllers/sources.controller';
 import {errorHandler} from "./middleware/errorHandler.middleware";
 import {feedRouter} from "./controllers/feed.controller";
 
-
-
-
 export function createRouters(app: any) {
     app.use(json());
     app.use('/api/users', userRouter);

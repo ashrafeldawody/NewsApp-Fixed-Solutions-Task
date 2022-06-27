@@ -38,7 +38,7 @@ export async function getNewsAndArticles(sourcesList:string[]) {
         parsedCachedSources.push(JSON.parse(source));
     })
 
-    //all sources exists in redis
+    //if all sources are cached, return them
     if (uncachedSources.length === 0) {
         return parsedCachedSources
     }
