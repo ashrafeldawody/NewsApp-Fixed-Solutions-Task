@@ -1,4 +1,4 @@
-import {redisConnectionString} from '../config';
+import {jwtExpiration, redisConnectionString} from '../config';
 import Redis from "ioredis";
 
 const redis = new Redis(redisConnectionString);
@@ -9,5 +9,5 @@ export async function checkBlacklisted(token:string) {
 }
 
 export async function addToBlacklist(token:string) {
-    await redis.set(`newsapp:blacklist:${token}`, 'true');
+    await redis.set(`newsapp:blacklist:${token}`, 'true', 'EX', jwtExpiration);
 }

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { sign } from 'jsonwebtoken';
-import { jwtSecret } from '../config';
+import {jwtExpiration, jwtSecret} from '../config';
 export interface IUser extends Document {
     email: string;
     fullName: string;
@@ -16,7 +16,7 @@ const UserSchema: Schema = new Schema({
 });
 
 UserSchema.methods.generateToken = function() {
-    return sign({_id: this._id}, jwtSecret);
+    return sign({_id: this._id}, jwtSecret, {expiresIn: jwtExpiration});
 };
 
 export default mongoose.model<IUser>('User', UserSchema);
