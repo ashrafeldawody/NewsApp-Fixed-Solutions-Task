@@ -8,6 +8,6 @@ export function createRouters(app: any) {
     app.use(json());
     app.use('/api/users', userRouter);
     app.use('/api/sources', sourceRouter);
-    app.use('/api/', feedRouter);
+    app.use('/api/feed', feedRouter);
     app.use(errorHandler);
 }

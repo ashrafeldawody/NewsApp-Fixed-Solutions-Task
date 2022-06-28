@@ -22,11 +22,11 @@ export async function getSource(sourceId:string) {
     return sources.sources.find((source:any) => source.id === sourceId);
 }
 
-export async function getNewsAndArticles(sourcesList:string[]) {
+export async function getNewsAndArticles(sourcesList:string[],page:string="1") {
     let uncachedSources:string[] = [];
 
     // if any of the sources is not cached, it will return null
-    let cachedSources:string[] = await redis.mget(...sourcesList.map((key)=>`newsapp:articles:${key}`)) as string[]
+    let cachedSources:string[] = await redis.mget(...sourcesList.map((key)=>`newsapp:articles:${key}:${page}`)) as string[]
 
     const parsedCachedSources:any[] = [];
 
@@ -42,23 +42,21 @@ export async function getNewsAndArticles(sourcesList:string[]) {
     if (uncachedSources.length === 0) {
         return parsedCachedSources
     }
-
+    console.log("uncached sources:",uncachedSources);
     let uncachedString = uncachedSources.join(',');
-    let response = await axios.get(`https://newsapi.org/v2/top-headlines?sources=${uncachedString}&apiKey=${newsApiKey}`);
+    let response = await axios.get(`https://newsapi.org/v2/everything?sources=${uncachedString}&page=${page}&apiKey=${newsApiKey}`);
 
     if (response.status === 200) {
         const filteredSources:any = {};
 
         uncachedSources.forEach((source:any) => {
             let filtered = response.data.articles.filter((article:any) => article.source.id === source);
-            if(filtered.length > 0)
-                filteredSources[source] = JSON.stringify(filtered);
+            filteredSources[source] = JSON.stringify(filtered);
         });
         let redisDataWithExpiry = Object.keys(filteredSources).map((k) => {
-            return ['set', `newsapp:articles:${k}`, filteredSources[k], 'ex', newsCacheExpiry];
+            return ['set', `newsapp:articles:${k}:${page}`, filteredSources[k], 'ex', newsCacheExpiry];
         });
         await redis.multi(redisDataWithExpiry).exec();
         return [...Object.keys(filteredSources).map(key => JSON.parse(filteredSources[key])).flat(), ...parsedCachedSources.flat()];
-
     }
 }
