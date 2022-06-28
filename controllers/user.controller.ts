@@ -44,7 +44,7 @@ userRouter.post('/register', async (req: Request, res: Response) => {
             res.send({'message': 'User created successfully'});
         })
         .catch(error => {
-            return new Error(error);
+            throw new Error(error);
         })
 });
 
